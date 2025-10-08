@@ -4,8 +4,8 @@ import heroImage from "@/assets/hero-currency.jpg";
 
 const Hero = () => {
   const scrollToConverter = () => {
-    const converterSection = document.getElementById('converter-tool');
-    converterSection?.scrollIntoView({ behavior: 'smooth' });
+    const converterSection = document.getElementById("converter-tool");
+    converterSection?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -15,14 +15,14 @@ const Hero = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-primary leading-tight">
-                Currency Converter – Real-Time Exchange Rate Calculator
+                Currency Converter – Exchange Rate Calculator
               </h1>
               <p className="text-lg lg:text-xl text-muted-foreground">
                 Easily convert any currency at live exchange rates. Fast, accurate, and completely free.
               </p>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={scrollToConverter}
               size="lg"
               className="gradient-primary hover:opacity-90 transition-opacity shadow-md group"
@@ -34,8 +34,8 @@ const Hero = () => {
 
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-accent blur-3xl opacity-20 rounded-full"></div>
-            <img 
-              src={heroImage} 
+            <img
+              src={heroImage}
               alt="Synctrack Currency Converter Tool Interface showing real-time exchange rates"
               className="relative rounded-2xl shadow-lg w-full"
               loading="eager"
