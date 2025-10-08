@@ -7,18 +7,46 @@ import { RefreshCw, DollarSign } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const popularCurrencies = [
-  { code: "USD", name: "US Dollar" },
-  { code: "EUR", name: "Euro" },
-  { code: "GBP", name: "British Pound" },
-  { code: "JPY", name: "Japanese Yen" },
-  { code: "AUD", name: "Australian Dollar" },
-  { code: "CAD", name: "Canadian Dollar" },
-  { code: "CHF", name: "Swiss Franc" },
-  { code: "CNY", name: "Chinese Yuan" },
-  { code: "INR", name: "Indian Rupee" },
-  { code: "SGD", name: "Singapore Dollar" },
-  { code: "HKD", name: "Hong Kong Dollar" },
-  { code: "NZD", name: "New Zealand Dollar" },
+  // Americas
+  { code: "USD", name: "US Dollar", continent: "Americas" },
+  { code: "CAD", name: "Canadian Dollar", continent: "Americas" },
+  { code: "BRL", name: "Brazilian Real", continent: "Americas" },
+  { code: "MXN", name: "Mexican Peso", continent: "Americas" },
+  { code: "ARS", name: "Argentine Peso", continent: "Americas" },
+  { code: "CLP", name: "Chilean Peso", continent: "Americas" },
+  
+  // Europe
+  { code: "EUR", name: "Euro", continent: "Europe" },
+  { code: "GBP", name: "British Pound", continent: "Europe" },
+  { code: "CHF", name: "Swiss Franc", continent: "Europe" },
+  { code: "SEK", name: "Swedish Krona", continent: "Europe" },
+  { code: "NOK", name: "Norwegian Krone", continent: "Europe" },
+  { code: "DKK", name: "Danish Krone", continent: "Europe" },
+  { code: "PLN", name: "Polish Zloty", continent: "Europe" },
+  { code: "CZK", name: "Czech Koruna", continent: "Europe" },
+  
+  // Asia
+  { code: "JPY", name: "Japanese Yen", continent: "Asia" },
+  { code: "CNY", name: "Chinese Yuan", continent: "Asia" },
+  { code: "INR", name: "Indian Rupee", continent: "Asia" },
+  { code: "SGD", name: "Singapore Dollar", continent: "Asia" },
+  { code: "HKD", name: "Hong Kong Dollar", continent: "Asia" },
+  { code: "KRW", name: "South Korean Won", continent: "Asia" },
+  { code: "THB", name: "Thai Baht", continent: "Asia" },
+  { code: "IDR", name: "Indonesian Rupiah", continent: "Asia" },
+  { code: "MYR", name: "Malaysian Ringgit", continent: "Asia" },
+  { code: "PHP", name: "Philippine Peso", continent: "Asia" },
+  
+  // Oceania
+  { code: "AUD", name: "Australian Dollar", continent: "Oceania" },
+  { code: "NZD", name: "New Zealand Dollar", continent: "Oceania" },
+  
+  // Africa
+  { code: "ZAR", name: "South African Rand", continent: "Africa" },
+  { code: "EGP", name: "Egyptian Pound", continent: "Africa" },
+  { code: "NGN", name: "Nigerian Naira", continent: "Africa" },
+  { code: "KES", name: "Kenyan Shilling", continent: "Africa" },
+  { code: "MAD", name: "Moroccan Dirham", continent: "Africa" },
 ];
 
 const CurrencyConverter = () => {
@@ -51,7 +79,7 @@ const CurrencyConverter = () => {
     
     try {
       const response = await fetch(
-        `https://api.exchangerate.host/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`
+        `https://api.frankfurter.dev/v1/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
       );
       
       if (!response.ok) {
@@ -60,8 +88,8 @@ const CurrencyConverter = () => {
       
       const data = await response.json();
       
-      if (data.result) {
-        setResult(data.result);
+      if (data.rates && data.rates[toCurrency]) {
+        setResult(data.rates[toCurrency]);
         toast({
           title: "Conversion Successful",
           description: "Exchange rate data updated in real-time.",
@@ -198,7 +226,7 @@ const CurrencyConverter = () => {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground text-center mt-4">
-                    Exchange rate data updated in real-time via ExchangeRate.host API.
+                    Exchange rate data updated in real-time via Frankfurter API.
                   </p>
                 </div>
               )}
