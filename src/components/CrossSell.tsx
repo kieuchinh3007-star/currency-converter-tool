@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calculator, TrendingUp, DollarSign, Percent, Package, Calendar, RefreshCw } from "lucide-react";
+import { ArrowRight, Package, Calendar, RefreshCw, FileText, ShieldCheck, FileCheck, AlertTriangle } from "lucide-react";
 
 const apps = [
   {
@@ -27,24 +27,28 @@ const apps = [
 
 const relatedTools = [
   {
-    icon: Calculator,
-    title: "Customer Lifetime Value Calculator",
-    description: "Calculate the total value a customer brings to your business",
+    icon: Package,
+    title: "Free Shipping Policy Generator",
+    description: "Generate professional shipping policies for your online store",
+    link: "https://synctrack.io/shipping-policy-generator/"
   },
   {
-    icon: TrendingUp,
-    title: "Break-even ROAS Calculator",
-    description: "Find your minimum return on ad spend for profitability",
+    icon: RefreshCw,
+    title: "Free Return & Refund Policy Generator",
+    description: "Create clear return and refund policies to build customer trust",
+    link: "https://synctrack.io/return-refund-policy-generator/"
   },
   {
-    icon: DollarSign,
-    title: "Ad Spend Optimizer",
-    description: "Optimize your advertising budget for maximum ROI",
+    icon: FileCheck,
+    title: "Free Terms & Conditions Generator",
+    description: "Generate comprehensive terms and conditions for your website",
+    link: "https://synctrack.io/terms-conditions-generator/"
   },
   {
-    icon: Percent,
-    title: "Profit Margin Checker",
-    description: "Analyze your profit margins across products and services",
+    icon: AlertTriangle,
+    title: "Free Disclaimer Generator",
+    description: "Create legal disclaimers to protect your business",
+    link: "https://synctrack.io/disclaimer-generator/"
   },
 ];
 
@@ -111,23 +115,27 @@ const CrossSell = () => {
               {relatedTools.map((tool, index) => {
                 const Icon = tool.icon;
                 return (
-                  <div 
-                    key={index} 
-                    className="bg-card rounded-xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer"
+                  <a
+                    key={index}
+                    href={tool.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-card rounded-xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block group"
                   >
                     <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                       <Icon className="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-lg font-semibold text-primary mb-2">
+                    <h3 className="text-lg font-semibold text-primary mb-2 group-hover:text-sky-blue transition-colors">
                       {tool.title}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
                       {tool.description}
                     </p>
-                    <Button variant="outline" size="sm" className="w-full">
+                    <div className="inline-flex items-center gap-2 text-sky-blue font-semibold group-hover:gap-3 transition-all">
                       Try Tool
-                    </Button>
-                  </div>
+                      <ArrowRight className="h-4 w-4" />
+                    </div>
+                  </a>
                 );
               })}
             </div>
