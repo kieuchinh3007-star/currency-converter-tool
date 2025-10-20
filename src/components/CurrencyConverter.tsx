@@ -127,8 +127,15 @@ const CurrencyConverter = () => {
 
   const fetchHistoricalData = async (from: string, to: string, days: number) => {
     try {
-      const endDate = format(new Date(), 'yyyy-MM-dd');
-      const startDate = format(subDays(new Date(), days), 'yyyy-MM-dd');
+      // Fetch latest available date first
+      const latestResponse = await fetch(
+        `https://api.frankfurter.dev/v1/latest?from=${from}&to=${to}`
+      );
+      
+      if (!latestResponse.ok) throw new Error('Failed to fetch latest data');
+      const latestData = await latestResponse.json();
+      const endDate = latestData.date; // Use the actual latest available date from API
+      const startDate = format(subDays(new Date(endDate), days), 'yyyy-MM-dd');
       
       const response = await fetch(
         `https://api.frankfurter.dev/v1/${startDate}..${endDate}?from=${from}&to=${to}`
