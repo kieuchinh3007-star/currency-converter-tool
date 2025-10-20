@@ -1,5 +1,29 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calculator, TrendingUp, DollarSign, Percent } from "lucide-react";
+import { ArrowRight, Calculator, TrendingUp, DollarSign, Percent, Package, Calendar, RefreshCw } from "lucide-react";
+
+const apps = [
+  {
+    name: "SyncTrack – Auto Track Order",
+    icon: Package,
+    description: "Automatically sync and track orders from multiple carriers. Keep customers informed with real-time updates.",
+    link: "https://apps.shopify.com/synctrack",
+    color: "from-blue-500 to-blue-600"
+  },
+  {
+    name: "Estimated Shipping Date",
+    icon: Calendar,
+    description: "Show accurate delivery estimates on product pages to build trust and boost conversions.",
+    link: "https://apps.shopify.com/omega-estimated-shipping-date",
+    color: "from-green-500 to-green-600"
+  },
+  {
+    name: "Omega Returns Drive",
+    icon: RefreshCw,
+    description: "Simplify your return process and increase customer satisfaction with an easy self-service return portal.",
+    link: "https://apps.shopify.com/omega-returns-drive",
+    color: "from-purple-500 to-purple-600"
+  }
+];
 
 const relatedTools = [
   {
@@ -27,26 +51,50 @@ const relatedTools = [
 const CrossSell = () => {
   return (
     <>
-      {/* Synctrack App Promotion */}
+      {/* Our Apps Section */}
       <section className="py-16 lg:py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-primary rounded-2xl p-8 lg:p-12 shadow-lg">
-              <h2 className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-4">
-                Boost Your Results with Synctrack App
-              </h2>
-              <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-                Simplify your eCommerce operations with Synctrack – the all-in-one solution for automated syncing, analytics, and growth tracking.
-              </p>
-              <Button 
-                size="lg"
-                variant="secondary"
-                className="bg-background hover:bg-background/90 text-primary shadow-md"
-              >
-                Explore Synctrack App
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-navy mb-4">
+              Our Apps
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Powerful Shopify apps to grow your e-commerce business
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {apps.map((app, index) => {
+              const Icon = app.icon;
+              return (
+                <div
+                  key={index}
+                  className="bg-card rounded-2xl p-6 border-2 border-border hover:border-sky-blue transition-all duration-300 hover:shadow-lg group"
+                >
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center mb-4`}>
+                    <Icon className="h-7 w-7 text-white" />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-navy mb-3 group-hover:text-sky-blue transition-colors">
+                    {app.name}
+                  </h3>
+                  
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    {app.description}
+                  </p>
+                  
+                  <a
+                    href={app.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sky-blue font-semibold hover:gap-3 transition-all"
+                  >
+                    View App
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
