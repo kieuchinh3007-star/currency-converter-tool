@@ -86,8 +86,9 @@ const CurrencyConverter = () => {
     setLoading(true);
     
     try {
+      const dateStr = format(date, 'yyyy-MM-dd');
       const response = await fetch(
-        `https://api.frankfurter.dev/v1/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+        `https://api.frankfurter.dev/v1/${dateStr}?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
       );
       
       if (!response.ok) {
@@ -100,7 +101,7 @@ const CurrencyConverter = () => {
         setResult(data.rates[toCurrency]);
         toast({
           title: "Conversion Successful",
-          description: "Exchange rate data updated in real-time.",
+          description: `Exchange rate for ${format(date, "PPP")} updated.`,
         });
       } else {
         throw new Error('Invalid response from API');
