@@ -130,7 +130,7 @@ const CurrencyConverter = () => {
       const startDate = format(subDays(new Date(), days), 'yyyy-MM-dd');
       
       const response = await fetch(
-        `https://api.frankfurter.dev/${startDate}..${endDate}?from=${from}&to=${to}`
+        `https://api.frankfurter.dev/v1/${startDate}..${endDate}?from=${from}&to=${to}`
       );
       
       if (!response.ok) throw new Error('Failed to fetch historical data');
