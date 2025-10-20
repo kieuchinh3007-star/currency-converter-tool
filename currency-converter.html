@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter – Calculator | Synctrack</title>
+    <meta name="description" content="Convert any currency instantly with our free, accurate, real-time Currency Converter. Supports 150+ currencies worldwide. Fast, easy, and completely free.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        :root {
+            --primary: 220 90% 56%;
+            --primary-foreground: 0 0% 100%;
+            --background: 0 0% 100%;
+            --foreground: 222 47% 11%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215 16% 47%;
+            --border: 214 32% 91%;
+            --sky-blue: 199 89% 48%;
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--sky-blue)));
+        }
+        
+        .text-primary {
+            color: hsl(var(--primary));
+        }
+        
+        .bg-background {
+            background-color: hsl(var(--background));
+        }
+        
+        .text-foreground {
+            color: hsl(var(--foreground));
+        }
+        
+        .text-muted-foreground {
+            color: hsl(var(--muted-foreground));
+        }
+        
+        .bg-muted {
+            background-color: hsl(var(--muted));
+        }
+        
+        .border-border {
+            border-color: hsl(var(--border));
+        }
+        
+        .text-sky-blue {
+            color: hsl(var(--sky-blue));
+        }
+    </style>
+</head>
+<body class="bg-background">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-border">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+                <a href="#" class="flex items-center space-x-2">
+                    <div class="w-8 h-8 gradient-primary rounded-lg"></div>
+                    <span class="text-xl lg:text-2xl font-bold text-primary">Synctrack</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16">
+        <!-- Hero Section -->
+        <section class="py-16 bg-background">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="text-4xl lg:text-5xl font-bold text-primary mb-4">
+                    Currency Converter – Exchange Rate Calculator
+                </h1>
+                <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    Easily convert any currency at live exchange rates. Fast, accurate, and completely free.
+                </p>
+            </div>
+        </section>
+
+        <!-- Converter Tool -->
+        <section id="converter-tool" class="py-16 bg-muted">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 lg:p-8">
+                    <div id="converter-form">
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <!-- Currency From -->
+                            <div>
+                                <label class="block text-sm font-semibold text-foreground mb-2">Currency From</label>
+                                <select id="fromCurrency" class="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="USD">USD - United States Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound Sterling</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="CHF">CHF - Swiss Franc</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="VND">VND - Vietnamese Dong</option>
+                                </select>
+                            </div>
+
+                            <!-- Currency To -->
+                            <div>
+                                <label class="block text-sm font-semibold text-foreground mb-2">Currency To</label>
+                                <select id="toCurrency" class="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="USD">USD - United States Dollar</option>
+                                    <option value="GBP">GBP - British Pound Sterling</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="CHF">CHF - Swiss Franc</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="VND">VND - Vietnamese Dong</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Amount -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-foreground mb-2">Amount</label>
+                            <input 
+                                type="number" 
+                                id="amount" 
+                                value="1000"
+                                min="0"
+                                step="0.01"
+                                class="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter amount"
+                            />
+                        </div>
+
+                        <!-- Date -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-foreground mb-2">Date</label>
+                            <input 
+                                type="date" 
+                                id="date"
+                                class="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+
+                        <!-- Convert Button -->
+                        <button 
+                            id="convertBtn"
+                            class="w-full gradient-primary text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity"
+                        >
+                            Convert
+                        </button>
+                    </div>
+
+                    <!-- Result -->
+                    <div id="result" class="hidden mt-8">
+                        <div class="bg-muted rounded-xl p-6 mb-6">
+                            <div class="text-center">
+                                <p class="text-muted-foreground mb-2">Converted Amount</p>
+                                <p id="resultAmount" class="text-4xl font-bold text-primary mb-2"></p>
+                                <p id="resultRate" class="text-sm text-muted-foreground"></p>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-foreground mb-4">Exchange Rate History</h3>
+                            <div class="bg-white p-4 rounded-lg">
+                                <canvas id="rateChart"></canvas>
+                            </div>
+                            <div class="flex gap-2 mt-4 justify-center">
+                                <button class="period-btn px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors" data-days="30">30 Days</button>
+                                <button class="period-btn px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors" data-days="60">60 Days</button>
+                                <button class="period-btn px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors" data-days="90">90 Days</button>
+                            </div>
+                        </div>
+
+                        <button 
+                            id="resetBtn"
+                            class="w-full border-2 border-primary text-primary font-semibold py-3 px-6 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                        >
+                            Convert Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let chart = null;
+
+        // Set today's date as default
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Convert button handler
+        document.getElementById('convertBtn').addEventListener('click', async () => {
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.frankfurter.app/${date}?from=${fromCurrency}&to=${toCurrency}`);
+                const data = await response.json();
+
+                if (data.rates && data.rates[toCurrency]) {
+                    const rate = data.rates[toCurrency];
+                    const result = amount * rate;
+
+                    document.getElementById('resultAmount').textContent = 
+                        `${result.toFixed(2)} ${toCurrency}`;
+                    document.getElementById('resultRate').textContent = 
+                        `1 ${fromCurrency} = ${rate.toFixed(6)} ${toCurrency}`;
+
+                    document.getElementById('converter-form').classList.add('hidden');
+                    document.getElementById('result').classList.remove('hidden');
+
+                    await fetchHistoricalData(fromCurrency, toCurrency, 30);
+                } else {
+                    alert('Could not fetch exchange rate. Please try again.');
+                }
+            } catch (error) {
+                alert('Error fetching exchange rate. Please try again.');
+                console.error(error);
+            }
+        });
+
+        // Reset button handler
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('converter-form').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        });
+
+        // Period buttons handler
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const days = parseInt(e.target.dataset.days);
+                const fromCurrency = document.getElementById('fromCurrency').value;
+                const toCurrency = document.getElementById('toCurrency').value;
+                await fetchHistoricalData(fromCurrency, toCurrency, days);
+            });
+        });
+
+        async function fetchHistoricalData(fromCurrency, toCurrency, days) {
+            try {
+                // Get latest available date
+                const latestResponse = await fetch(`https://api.frankfurter.app/latest?from=${fromCurrency}&to=${toCurrency}`);
+                const latestData = await latestResponse.json();
+                const endDate = new Date(latestData.date);
+                
+                const startDate = new Date(endDate);
+                startDate.setDate(startDate.getDate() - days);
+
+                const formattedStartDate = startDate.toISOString().split('T')[0];
+                const formattedEndDate = endDate.toISOString().split('T')[0];
+
+                const response = await fetch(
+                    `https://api.frankfurter.app/${formattedStartDate}..${formattedEndDate}?from=${fromCurrency}&to=${toCurrency}`
+                );
+                const data = await response.json();
+
+                const chartData = Object.entries(data.rates).map(([date, rates]) => ({
+                    date,
+                    rate: rates[toCurrency]
+                }));
+
+                renderChart(chartData, fromCurrency, toCurrency);
+            } catch (error) {
+                console.error('Error fetching historical data:', error);
+            }
+        }
+
+        function renderChart(data, fromCurrency, toCurrency) {
+            const ctx = document.getElementById('rateChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date),
+                    datasets: [{
+                        label: `${fromCurrency} to ${toCurrency}`,
+                        data: data.map(d => d.rate),
+                        borderColor: 'hsl(220, 90%, 56%)',
+                        backgroundColor: 'hsla(220, 90%, 56%, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'hsl(214, 32%, 91%)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 8
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
