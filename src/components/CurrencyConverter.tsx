@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, DollarSign } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RefreshCw, DollarSign, CalendarIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { format, subDays } from "date-fns";
+import { cn } from "@/lib/utils";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const popularCurrencies = [
   // Americas
@@ -55,6 +60,9 @@ const CurrencyConverter = () => {
   const [amount, setAmount] = useState<string>("");
   const [result, setResult] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState<Date>(new Date());
+  const [period, setPeriod] = useState<30 | 60 | 90>(30);
+  const [chartData, setChartData] = useState<Array<{ date: string; rate: number }>>([]);
 
   const handleConvert = async () => {
     if (!fromCurrency || !toCurrency || !amount) {
@@ -113,7 +121,39 @@ const CurrencyConverter = () => {
     setToCurrency("");
     setAmount("");
     setResult(null);
+    setChartData([]);
   };
+
+  const fetchHistoricalData = async (from: string, to: string, days: number) => {
+    try {
+      const endDate = format(new Date(), 'yyyy-MM-dd');
+      const startDate = format(subDays(new Date(), days), 'yyyy-MM-dd');
+      
+      const response = await fetch(
+        `https://api.frankfurter.dev/${startDate}..${endDate}?from=${from}&to=${to}`
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch historical data');
+      
+      const data = await response.json();
+      
+      if (data.rates) {
+        const formattedData = Object.entries(data.rates).map(([date, rates]: [string, any]) => ({
+          date: format(new Date(date), 'MMM dd'),
+          rate: rates[to]
+        }));
+        setChartData(formattedData);
+      }
+    } catch (error) {
+      console.error('Error fetching historical data:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (fromCurrency && toCurrency && result !== null) {
+      fetchHistoricalData(fromCurrency, toCurrency, period);
+    }
+  }, [fromCurrency, toCurrency, period, result]);
 
   return (
     <section id="converter-tool" className="py-16 lg:py-24 bg-light-bg">
@@ -165,21 +205,52 @@ const CurrencyConverter = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="amount" className="text-foreground font-medium">
-                  Amount <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="Enter amount (e.g. 100)"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="bg-background"
-                  min="0"
-                  step="0.01"
-                />
-                <p className="text-xs text-muted-foreground">Amount in base currency</p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="amount" className="text-foreground font-medium">
+                    Amount <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="Enter amount (e.g. 100)"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="bg-background"
+                    min="0"
+                    step="0.01"
+                  />
+                  <p className="text-xs text-muted-foreground">Amount in base currency</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-foreground font-medium">Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal bg-background",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={(newDate) => newDate && setDate(newDate)}
+                        disabled={(date) => date > new Date() || date < new Date("1999-01-01")}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <p className="text-xs text-muted-foreground">Historical exchange rate date</p>
+                </div>
               </div>
 
               <div className="flex gap-4">
@@ -215,20 +286,77 @@ const CurrencyConverter = () => {
               </div>
 
               {result !== null && (
-                <div className="mt-8 p-6 bg-light-bg rounded-xl border-2 border-sky-blue">
-                  <div className="flex items-center justify-center gap-3">
-                    <DollarSign className="h-8 w-8 text-sky-blue" />
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-1">Total:</p>
-                      <p className="text-3xl lg:text-4xl font-bold text-navy">
-                        {result.toFixed(2)} {toCurrency}
+                <>
+                  <div className="mt-8 p-6 bg-light-bg rounded-xl border-2 border-sky-blue">
+                    <div className="flex items-center justify-center gap-3">
+                      <DollarSign className="h-8 w-8 text-sky-blue" />
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground mb-1">Total:</p>
+                        <p className="text-3xl lg:text-4xl font-bold text-navy">
+                          {result.toFixed(2)} {toCurrency}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center mt-4">
+                      Exchange rate data updated in real-time via Frankfurter API.
+                    </p>
+                  </div>
+
+                  {chartData.length > 0 && (
+                    <div className="mt-8 p-6 bg-card rounded-xl border-2 border-border">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold text-navy">
+                          Exchange Rate Trend: {fromCurrency}/{toCurrency}
+                        </h3>
+                        <div className="flex gap-2">
+                          {([30, 60, 90] as const).map((days) => (
+                            <Button
+                              key={days}
+                              variant={period === days ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setPeriod(days)}
+                              className={period === days ? "gradient-primary" : ""}
+                            >
+                              {days}D
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={chartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis 
+                            dataKey="date" 
+                            stroke="hsl(var(--muted-foreground))"
+                            style={{ fontSize: '12px' }}
+                          />
+                          <YAxis 
+                            stroke="hsl(var(--muted-foreground))"
+                            style={{ fontSize: '12px' }}
+                            domain={['auto', 'auto']}
+                          />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px'
+                            }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="rate" 
+                            stroke="hsl(var(--primary))" 
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      <p className="text-xs text-muted-foreground text-center mt-4">
+                        Historical exchange rates for the last {period} days
                       </p>
                     </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center mt-4">
-                    Exchange rate data updated in real-time via Frankfurter API.
-                  </p>
-                </div>
+                  )}
+                </>
               )}
             </div>
           </div>
