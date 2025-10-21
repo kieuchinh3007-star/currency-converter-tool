@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Easily convert any currency at live exchange rates. Fast, accurate, and completely free. Supports 150+ currencies worldwide.">
+    <title>Currency Converter – Exchange Rate Calculator | Synctrack</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: 'hsl(228, 47%, 15%)',
+                        'sky-blue': 'hsl(207, 65%, 52%)',
+                        'light-bg': 'hsl(215, 40%, 98%)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: hsl(228, 47%, 15%);
+            background: white;
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, hsl(228, 47%, 15%), hsl(207, 65%, 52%));
+        }
+        
+        .gradient-accent {
+            background: linear-gradient(135deg, hsl(207, 65%, 52%), hsl(207, 65%, 65%));
+        }
+        
+        .hover-scale {
+            transition: transform 0.2s;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        select, input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        
+        .select-wrapper {
+            position: relative;
+        }
+        
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 0.75rem;
+            color: hsl(215, 16%, 47%);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+                <a href="/" class="flex items-center space-x-2">
+                    <div class="w-8 h-8 gradient-primary rounded-lg"></div>
+                    <span class="text-xl lg:text-2xl font-bold text-navy">Synctrack</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden bg-white pt-20 pb-16 lg:pt-32 lg:pb-24">
+            <div class="container mx-auto px-4">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8">
+                        <div class="space-y-4">
+                            <h1 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-navy leading-tight">
+                                Currency Converter – Exchange Rate Calculator
+                            </h1>
+                            <p class="text-lg lg:text-xl text-gray-600">
+                                Easily convert any currency at live exchange rates. Fast, accurate, and completely free.
+                            </p>
+                        </div>
+
+                        <button
+                            onclick="document.getElementById('converter-tool').scrollIntoView({ behavior: 'smooth' })"
+                            class="gradient-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity shadow-md inline-flex items-center gap-2"
+                        >
+                            Start Calculating
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute inset-0 gradient-accent blur-3xl opacity-20 rounded-full"></div>
+                        <img
+                            src="src/assets/hero-currency.jpg"
+                            alt="Synctrack Currency Converter Tool Interface showing real-time exchange rates"
+                            class="relative rounded-2xl shadow-lg w-full"
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Currency Converter Tool -->
+        <section id="converter-tool" class="py-16 lg:py-24" style="background-color: hsl(215, 40%, 98%);">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white rounded-2xl shadow-lg p-8 lg:p-10">
+                        <h2 class="text-3xl font-bold text-navy mb-8 text-center">
+                            Currency Converter Tool
+                        </h2>
+
+                        <form id="converterForm" class="space-y-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="from-currency" class="block text-sm font-medium text-navy">
+                                        Currency From <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="select-wrapper">
+                                        <select id="from-currency" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent bg-white">
+                                            <option value="">Select base currency (e.g. USD)</option>
+                                        </select>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Currency to convert from</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="to-currency" class="block text-sm font-medium text-navy">
+                                        Currency To <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="select-wrapper">
+                                        <select id="to-currency" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent bg-white">
+                                            <option value="">Select target currency (e.g. EUR)</option>
+                                        </select>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Currency to convert to</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="amount" class="block text-sm font-medium text-navy">
+                                        Amount <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="amount"
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Enter amount (e.g. 100)"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                                    />
+                                    <p class="text-xs text-gray-500">Amount in base currency</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="date" class="block text-sm font-medium text-navy">
+                                        Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="date"
+                                        max=""
+                                        min="1999-01-01"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                                    />
+                                    <p class="text-xs text-gray-500">Historical exchange rate date</p>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button
+                                    type="submit"
+                                    id="convertBtn"
+                                    class="flex-1 gradient-primary text-white px-6 py-4 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                    Convert
+                                </button>
+                                
+                                <button
+                                    type="button"
+                                    id="resetBtn"
+                                    class="hidden px-6 py-4 border-2 border-sky-blue text-sky-blue rounded-lg text-lg font-semibold hover:bg-sky-blue hover:text-white transition-colors"
+                                >
+                                    Convert Again
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Result Display -->
+                        <div id="resultContainer" class="hidden mt-8 space-y-6">
+                            <div class="p-6 rounded-xl border-2 border-sky-blue" style="background-color: hsl(215, 40%, 98%);">
+                                <div class="flex items-center justify-center gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="hsl(207, 65%, 52%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                    <div class="text-center">
+                                        <p class="text-sm text-gray-600 mb-1">Total:</p>
+                                        <p id="resultValue" class="text-3xl lg:text-4xl font-bold text-navy"></p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 text-center mt-4">
+                                    Exchange rate data updated in real-time via Frankfurter API.
+                                </p>
+                            </div>
+
+                            <!-- Chart Container -->
+                            <div id="chartContainer" class="p-6 bg-white rounded-xl border-2 border-gray-200">
+                                <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                                    <h3 id="chartTitle" class="text-lg font-semibold text-navy">
+                                        Exchange Rate Trend
+                                    </h3>
+                                    <div class="flex gap-2">
+                                        <button type="button" onclick="changePeriod(30)" id="period-30" class="px-4 py-2 rounded-lg text-sm font-semibold gradient-primary text-white">
+                                            30D
+                                        </button>
+                                        <button type="button" onclick="changePeriod(60)" id="period-60" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold hover:bg-gray-50">
+                                            60D
+                                        </button>
+                                        <button type="button" onclick="changePeriod(90)" id="period-90" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold hover:bg-gray-50">
+                                            90D
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style="position: relative; height: 300px;">
+                                    <canvas id="exchangeChart"></canvas>
+                                </div>
+                                <p id="chartPeriodText" class="text-xs text-gray-500 text-center mt-4">
+                                    Historical exchange rates for the last 30 days
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to Use Section -->
+        <section class="py-16 lg:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-navy mb-6 text-center">
+                        How to Use the Currency Converter
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white font-bold">
+                                1
+                            </div>
+                            <p class="text-lg text-gray-700 pt-1">Select your base currency ('Currency From').</p>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white font-bold">
+                                2
+                            </div>
+                            <p class="text-lg text-gray-700 pt-1">Choose the currency you want to convert to ('Currency To').</p>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white font-bold">
+                                3
+                            </div>
+                            <p class="text-lg text-gray-700 pt-1">Enter the amount you want to convert.</p>
+                        </div>
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0 w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white font-bold">
+                                4
+                            </div>
+                            <p class="text-lg text-gray-700 pt-1">Click 'Convert' to get the real-time result instantly.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-6 rounded-xl border border-gray-200" style="background-color: hsl(215, 40%, 98%);">
+                        <div class="flex items-start gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(207, 65%, 52%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-1">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <p class="text-gray-700">
+                                The tool fetches the latest exchange rate automatically and displays your total in seconds.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Use Section -->
+        <section class="py-16 lg:py-24" style="background-color: hsl(215, 40%, 98%);">
+            <div class="container mx-auto px-4">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-navy mb-12 text-center">
+                        Why Use Our Free Currency Converter
+                    </h2>
+
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-navy mb-2">Free & Accurate</h3>
+                            <p class="text-gray-600">Free, accurate, and real-time exchange rates.</p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m15 2-1 4-4-3-4 3-1-4-1 8 6 5 6-5z"></path>
+                                    <path d="M6 6v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-navy mb-2">150+ Currencies</h3>
+                            <p class="text-gray-600">Supports 150+ currencies worldwide.</p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-navy mb-2">Easy to Use</h3>
+                            <p class="text-gray-600">Easy-to-use interface — no signup required.</p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                    <polyline points="16 7 22 7 22 13"></polyline>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-navy mb-2">Reliable Data</h3>
+                            <p class="text-gray-600">Powered by reliable APIs for up-to-date data.</p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                                    <path d="M2 12h20"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-navy mb-2">Responsive Design</h3>
+                            <p class="text-gray-600">Responsive & fast, works perfectly on mobile and desktop.</p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-navy mb-2">Instant Results</h3>
+                            <p class="text-gray-600">Get conversion results in real-time, instantly.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Understanding Metrics Section -->
+        <section class="py-16 lg:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-navy mb-8 text-center">
+                        Understanding Currency Conversion Metrics
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-navy mb-3">Exchange Rate</h3>
+                            <p class="text-gray-700 mb-2">The value of one currency in terms of another.</p>
+                            <div class="p-4 rounded-lg" style="background-color: hsl(215, 40%, 98%);">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Example:</strong> 1 USD = 0.92 EUR
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-navy mb-3">Amount</h3>
+                            <p class="text-gray-700 mb-2">The quantity you wish to convert.</p>
+                            <div class="p-4 rounded-lg" style="background-color: hsl(215, 40%, 98%);">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Example:</strong> $100
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                            <h3 class="text-xl font-semibold text-navy mb-3">Total</h3>
+                            <p class="text-gray-700 mb-2">Final converted value = Exchange Rate × Amount</p>
+                            <div class="p-4 rounded-lg" style="background-color: hsl(215, 40%, 98%);">
+                                <p class="text-sm text-gray-600 mb-2"><strong>Example:</strong></p>
+                                <p class="text-sm text-gray-600">
+                                    If 1 USD = 0.92 EUR and you enter 100 USD,<br>
+                                    → Total = 100 × 0.92 = <strong class="text-navy">92 EUR</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-16 lg:py-24" style="background-color: hsl(215, 40%, 98%);">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-navy mb-12 text-center">
+                        Frequently Asked Question (FAQs)
+                    </h2>
+
+                    <div class="space-y-4">
+                        <details class="bg-white rounded-xl shadow-sm p-6 group">
+                            <summary class="text-left text-lg font-semibold text-navy cursor-pointer list-none flex items-center justify-between">
+                                <span>What is a currency converter?</span>
+                                <svg class="w-5 h-5 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <p class="text-gray-700 mt-4">A tool that allows you to calculate the equivalent value between two currencies using real-time exchange rates.</p>
+                        </details>
+
+                        <details class="bg-white rounded-xl shadow-sm p-6 group">
+                            <summary class="text-left text-lg font-semibold text-navy cursor-pointer list-none flex items-center justify-between">
+                                <span>How accurate are the rates?</span>
+                                <svg class="w-5 h-5 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <p class="text-gray-700 mt-4">The rates are updated every minute via trusted exchange APIs like ExchangeRate.host, ensuring maximum accuracy.</p>
+                        </details>
+
+                        <details class="bg-white rounded-xl shadow-sm p-6 group">
+                            <summary class="text-left text-lg font-semibold text-navy cursor-pointer list-none flex items-center justify-between">
+                                <span>Is the Currency Converter free to use?</span>
+                                <svg class="w-5 h-5 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <p class="text-gray-700 mt-4">Yes, it's completely free and requires no registration. Simply enter your values and convert instantly.</p>
+                        </details>
+
+                        <details class="bg-white rounded-xl shadow-sm p-6 group">
+                            <summary class="text-left text-lg font-semibold text-navy cursor-pointer list-none flex items-center justify-between">
+                                <span>Can I use it on mobile?</span>
+                                <svg class="w-5 h-5 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <p class="text-gray-700 mt-4">Absolutely. The tool is fully responsive and works seamlessly on all devices including smartphones, tablets, and desktops.</p>
+                        </details>
+
+                        <details class="bg-white rounded-xl shadow-sm p-6 group">
+                            <summary class="text-left text-lg font-semibold text-navy cursor-pointer list-none flex items-center justify-between">
+                                <span>How many currencies are supported?</span>
+                                <svg class="w-5 h-5 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <p class="text-gray-700 mt-4">Our currency converter supports 150+ currencies from around the world, covering all major and many minor currencies.</p>
+                        </details>
+
+                        <details class="bg-white rounded-xl shadow-sm p-6 group">
+                            <summary class="text-left text-lg font-semibold text-navy cursor-pointer list-none flex items-center justify-between">
+                                <span>How often are exchange rates updated?</span>
+                                <svg class="w-5 h-5 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <p class="text-gray-700 mt-4">Exchange rates are fetched in real-time whenever you perform a conversion, ensuring you always get the most current data.</p>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cross-Sell: Our Apps -->
+        <section class="py-16 lg:py-24 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-navy mb-4">Our Apps</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                        Powerful Shopify apps to grow your e-commerce business
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div class="bg-white rounded-2xl p-6 border-2 border-gray-200 hover:border-sky-blue transition-all duration-300 hover:shadow-lg group">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3 group-hover:text-sky-blue transition-colors">
+                            SyncTrack – Auto Track Order
+                        </h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Automatically sync and track orders from multiple carriers. Keep customers informed with real-time updates.
+                        </p>
+                        <a href="https://apps.shopify.com/synctrack" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sky-blue font-semibold hover:gap-3 transition-all">
+                            View App
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border-2 border-gray-200 hover:border-sky-blue transition-all duration-300 hover:shadow-lg group">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3 group-hover:text-sky-blue transition-colors">
+                            Estimated Shipping Date
+                        </h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Show accurate delivery estimates on product pages to build trust and boost conversions.
+                        </p>
+                        <a href="https://apps.shopify.com/omega-estimated-shipping-date" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sky-blue font-semibold hover:gap-3 transition-all">
+                            View App
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 border-2 border-gray-200 hover:border-sky-blue transition-all duration-300 hover:shadow-lg group">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, #a855f7, #9333ea);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-navy mb-3 group-hover:text-sky-blue transition-colors">
+                            Omega Returns Drive
+                        </h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            Simplify your return process and increase customer satisfaction with an easy self-service return portal.
+                        </p>
+                        <a href="https://apps.shopify.com/omega-returns-drive" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sky-blue font-semibold hover:gap-3 transition-all">
+                            View App
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- More Tools Like This -->
+        <section class="py-16 lg:py-24" style="background-color: hsl(215, 40%, 98%);">
+            <div class="container mx-auto px-4">
+                <div class="max-w-6xl mx-auto">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-navy mb-12 text-center">
+                        More Tools Like This
+                    </h2>
+
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <a href="https://synctrack.io/shipping-policy-generator/" target="_blank" rel="noopener noreferrer" class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block group">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-navy mb-2 group-hover:text-sky-blue transition-colors">
+                                Free Shipping Policy Generator
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Generate professional shipping policies for your online store
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-sky-blue font-semibold group-hover:gap-3 transition-all">
+                                Try Tool
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
+                        </a>
+
+                        <a href="https://synctrack.io/return-refund-policy-generator/" target="_blank" rel="noopener noreferrer" class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block group">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-navy mb-2 group-hover:text-sky-blue transition-colors">
+                                Free Return & Refund Policy Generator
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Create clear return and refund policies to build customer trust
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-sky-blue font-semibold group-hover:gap-3 transition-all">
+                                Try Tool
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
+                        </a>
+
+                        <a href="https://synctrack.io/terms-conditions-generator/" target="_blank" rel="noopener noreferrer" class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block group">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-navy mb-2 group-hover:text-sky-blue transition-colors">
+                                Free Terms & Conditions Generator
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Generate comprehensive terms and conditions for your website
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-sky-blue font-semibold group-hover:gap-3 transition-all">
+                                Try Tool
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
+                        </a>
+
+                        <a href="https://synctrack.io/disclaimer-generator/" target="_blank" rel="noopener noreferrer" class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 block group">
+                            <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-navy mb-2 group-hover:text-sky-blue transition-colors">
+                                Free Disclaimer Generator
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Create legal disclaimers to protect your business
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-sky-blue font-semibold group-hover:gap-3 transition-all">
+                                Try Tool
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-white py-8 lg:py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 gradient-accent rounded-lg"></div>
+                    <span class="text-xl font-bold">Synctrack</span>
+                </div>
+                <p class="text-white/80 text-center">
+                    © <span id="currentYear"></span> Synctrack. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Currency data
+        const currencies = [
+            { code: "USD", name: "US Dollar", continent: "Americas" },
+            { code: "CAD", name: "Canadian Dollar", continent: "Americas" },
+            { code: "BRL", name: "Brazilian Real", continent: "Americas" },
+            { code: "MXN", name: "Mexican Peso", continent: "Americas" },
+            { code: "ARS", name: "Argentine Peso", continent: "Americas" },
+            { code: "CLP", name: "Chilean Peso", continent: "Americas" },
+            { code: "EUR", name: "Euro", continent: "Europe" },
+            { code: "GBP", name: "British Pound", continent: "Europe" },
+            { code: "CHF", name: "Swiss Franc", continent: "Europe" },
+            { code: "SEK", name: "Swedish Krona", continent: "Europe" },
+            { code: "NOK", name: "Norwegian Krone", continent: "Europe" },
+            { code: "DKK", name: "Danish Krone", continent: "Europe" },
+            { code: "PLN", name: "Polish Zloty", continent: "Europe" },
+            { code: "CZK", name: "Czech Koruna", continent: "Europe" },
+            { code: "JPY", name: "Japanese Yen", continent: "Asia" },
+            { code: "CNY", name: "Chinese Yuan", continent: "Asia" },
+            { code: "INR", name: "Indian Rupee", continent: "Asia" },
+            { code: "SGD", name: "Singapore Dollar", continent: "Asia" },
+            { code: "HKD", name: "Hong Kong Dollar", continent: "Asia" },
+            { code: "KRW", name: "South Korean Won", continent: "Asia" },
+            { code: "THB", name: "Thai Baht", continent: "Asia" },
+            { code: "IDR", name: "Indonesian Rupiah", continent: "Asia" },
+            { code: "MYR", name: "Malaysian Ringgit", continent: "Asia" },
+            { code: "PHP", name: "Philippine Peso", continent: "Asia" },
+            { code: "AUD", name: "Australian Dollar", continent: "Oceania" },
+            { code: "NZD", name: "New Zealand Dollar", continent: "Oceania" },
+            { code: "ZAR", name: "South African Rand", continent: "Africa" },
+            { code: "EGP", name: "Egyptian Pound", continent: "Africa" },
+            { code: "NGN", name: "Nigerian Naira", continent: "Africa" },
+            { code: "KES", name: "Kenyan Shilling", continent: "Africa" },
+            { code: "MAD", name: "Moroccan Dirham", continent: "Africa" }
+        ];
+
+        // State
+        let currentPeriod = 30;
+        let chart = null;
+        let currentFromCurrency = '';
+        let currentToCurrency = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Set today's date as max and default
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.max = today;
+            dateInput.value = today;
+
+            // Populate currency dropdowns
+            const fromSelect = document.getElementById('from-currency');
+            const toSelect = document.getElementById('to-currency');
+            
+            currencies.forEach(currency => {
+                const option1 = document.createElement('option');
+                option1.value = currency.code;
+                option1.textContent = `${currency.code} - ${currency.name}`;
+                fromSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = currency.code;
+                option2.textContent = `${currency.code} - ${currency.name}`;
+                toSelect.appendChild(option2);
+            });
+
+            // Form submission
+            document.getElementById('converterForm').addEventListener('submit', handleConvert);
+            
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', handleReset);
+        });
+
+        async function handleConvert(e) {
+            e.preventDefault();
+
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            const amount = document.getElementById('amount').value;
+            const date = document.getElementById('date').value;
+
+            if (!fromCurrency || !toCurrency || !amount) {
+                alert('Please fill all required fields before proceeding.');
+                return;
+            }
+
+            if (parseFloat(amount) <= 0) {
+                alert('Amount must be greater than zero.');
+                return;
+            }
+
+            const convertBtn = document.getElementById('convertBtn');
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = `
+                <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Converting...
+            `;
+
+            try {
+                const response = await fetch(
+                    `https://api.frankfurter.dev/v1/${date}?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+                );
+
+                if (!response.ok) throw new Error('Failed to fetch exchange rates');
+
+                const data = await response.json();
+
+                if (data.rates && data.rates[toCurrency]) {
+                    const result = data.rates[toCurrency];
+                    
+                    // Show result
+                    document.getElementById('resultValue').textContent = `${result.toFixed(2)} ${toCurrency}`;
+                    document.getElementById('resultContainer').classList.remove('hidden');
+                    document.getElementById('resetBtn').classList.remove('hidden');
+                    
+                    // Store current currencies
+                    currentFromCurrency = fromCurrency;
+                    currentToCurrency = toCurrency;
+                    
+                    // Fetch and display chart
+                    await fetchHistoricalData(fromCurrency, toCurrency, currentPeriod);
+                } else {
+                    throw new Error('Invalid response from API');
+                }
+            } catch (error) {
+                alert('Unable to fetch exchange rates. Please try again.');
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Convert
+                `;
+            }
+        }
+
+        function handleReset() {
+            document.getElementById('converterForm').reset();
+            document.getElementById('resultContainer').classList.add('hidden');
+            document.getElementById('resetBtn').classList.add('hidden');
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        }
+
+        async function fetchHistoricalData(from, to, days) {
+            try {
+                // Fetch latest available date
+                const latestResponse = await fetch(
+                    `https://api.frankfurter.dev/v1/latest?from=${from}&to=${to}`
+                );
+                
+                if (!latestResponse.ok) throw new Error('Failed to fetch latest data');
+                
+                const latestData = await latestResponse.json();
+                const endDate = latestData.date;
+                
+                const startDateObj = new Date(endDate);
+                startDateObj.setDate(startDateObj.getDate() - days);
+                const startDate = startDateObj.toISOString().split('T')[0];
+                
+                const response = await fetch(
+                    `https://api.frankfurter.dev/v1/${startDate}..${endDate}?from=${from}&to=${to}`
+                );
+                
+                if (!response.ok) throw new Error('Failed to fetch historical data');
+                
+                const data = await response.json();
+                
+                if (data.rates) {
+                    const dates = [];
+                    const rates = [];
+                    
+                    Object.entries(data.rates).forEach(([date, rateObj]) => {
+                        const dateObj = new Date(date);
+                        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        dates.push(formattedDate);
+                        rates.push(rateObj[to]);
+                    });
+                    
+                    // Update chart title
+                    document.getElementById('chartTitle').textContent = `Exchange Rate Trend: ${from}/${to}`;
+                    
+                    renderChart(dates, rates);
+                }
+            } catch (error) {
+                console.error('Error fetching historical data:', error);
+            }
+        }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('exchangeChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Exchange Rate',
+                        data: data,
+                        borderColor: 'hsl(228, 47%, 15%)',
+                        backgroundColor: 'hsla(228, 47%, 15%, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'white',
+                            titleColor: 'hsl(228, 47%, 15%)',
+                            bodyColor: 'hsl(228, 47%, 15%)',
+                            borderColor: 'hsl(215, 20%, 90%)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'hsl(215, 20%, 90%)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'hsl(215, 16%, 47%)',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'hsl(215, 20%, 90%)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'hsl(215, 16%, 47%)',
+                                font: {
+                                    size: 12
+                                },
+                                maxRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function changePeriod(days) {
+            currentPeriod = days;
+            
+            // Update button styles
+            [30, 60, 90].forEach(d => {
+                const btn = document.getElementById(`period-${d}`);
+                if (d === days) {
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-semibold gradient-primary text-white';
+                } else {
+                    btn.className = 'px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold hover:bg-gray-50';
+                }
+            });
+            
+            // Update period text
+            document.getElementById('chartPeriodText').textContent = `Historical exchange rates for the last ${days} days`;
+            
+            // Fetch new data
+            if (currentFromCurrency && currentToCurrency) {
+                fetchHistoricalData(currentFromCurrency, currentToCurrency, days);
+            }
+        }
+    </script>
+</body>
+</html>
